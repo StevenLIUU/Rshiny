@@ -77,17 +77,16 @@ vgc_sepal_ratio = mean(apply(virginica_sepal, 1, function(x) x[1]/x[2]))
 
 
 ui <- fluidPage(
-  plotOutput("plot1",
-             click = "plot_click",
-             dblclick = "plot_dblclick",
-             hover = "plot_hover",
-             brush = "plot_brush"
-  ),
   actionButton(inputId = "sepal", label = "Sepal scatter plot"),
   actionButton(inputId = "patel", label = "Petal scatter plot"),
-  verbatimTextOutput("info"),
-  plotOutput("sepal_plot"),
-  plotOutput("patel_plot")
+  verbatimTextOutput("info1"),
+  verbatimTextOutput("info2"),
+  plotOutput("sepal_plot",
+             click = "plot_click1",
+             brush = "plot_brush1"),
+  plotOutput("patel_plot",
+             click = "plot_click2",
+             brush = "plot_brush2")
 )
 
 
@@ -108,18 +107,7 @@ server <- function(input, output) {
     } 
   })
   
-  output$patel_plot <- renderPlot({
-    if (input$patel %% 2 == 1) {
-      p <- ggplot(data=iris, aes(x=Petal.Length, y=Petal.Width, color=species, shape = species))+geom_point(size=3)
-      p + ggtitle("scatter plot for patel size")
-      } 
-  })
-  
-  output$plot1 <- renderPlot({
-    plot(mtcars$wt, mtcars$mpg)
-  })
-  
-  output$info <- renderText({
+  output$info1 <- renderText({
     xy_str <- function(e) {
       if(is.null(e)) return("NULL\n")
       paste0("x=", round(e$x, 1), " y=", round(e$y, 1), "\n")
@@ -129,13 +117,39 @@ server <- function(input, output) {
       paste0("xmin=", round(e$xmin, 1), " xmax=", round(e$xmax, 1), 
              " ymin=", round(e$ymin, 1), " ymax=", round(e$ymax, 1))
     }
-    
-    paste0(
-      "click: ", xy_str(input$plot_click),
-      "dblclick: ", xy_str(input$plot_dblclick),
-      "hover: ", xy_str(input$plot_hover),
-      "brush: ", xy_range_str(input$plot_brush)
-    )
+    if (input$sepal %% 2 == 1) {
+      paste0(
+        "scatter plot for sepal size: \n",
+        "click: ", xy_str(input$plot_click1),
+        "brush: ", xy_range_str(input$plot_brush1)
+      )
+    }
+  })
+  
+  output$patel_plot <- renderPlot({
+    if (input$patel %% 2 == 1) {
+      p <- ggplot(data=iris, aes(x=Petal.Length, y=Petal.Width, color=species, shape = species))+geom_point(size=3)
+      p + ggtitle("scatter plot for patel size")
+      } 
+  })
+  
+  output$info2 <- renderText({
+    xy_str <- function(e) {
+      if(is.null(e)) return("NULL\n")
+      paste0("x=", round(e$x, 1), " y=", round(e$y, 1), "\n")
+    }
+    xy_range_str <- function(e) {
+      if(is.null(e)) return("NULL\n")
+      paste0("xmin=", round(e$xmin, 1), " xmax=", round(e$xmax, 1), 
+             " ymin=", round(e$ymin, 1), " ymax=", round(e$ymax, 1))
+    }
+    if (input$patel %% 2 == 1) {
+      paste0(
+        "scatter plot for patel size: \n",
+        "click: ", xy_str(input$plot_click2),
+        "brush: ", xy_range_str(input$plot_brush2)
+      )
+    }
   })
 }
 
